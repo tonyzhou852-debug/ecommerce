@@ -307,6 +307,77 @@
     font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;color:#6b6552;
   }
 
+  /* cart drawer */
+  .overlay{
+    position:fixed;inset:0;z-index:150;background:rgba(23,21,15,.5);
+    opacity:0;pointer-events:none;transition:opacity .35s;
+  }
+  .overlay.show{opacity:1;pointer-events:auto}
+  .drawer{
+    position:fixed;top:0;right:0;bottom:0;z-index:160;width:min(420px,92vw);
+    background:var(--bone);border-left:2px solid var(--ink);
+    transform:translateX(105%);transition:transform .45s cubic-bezier(.2,.8,.2,1);
+    display:flex;flex-direction:column;
+  }
+  .drawer.open{transform:none}
+  .drawer-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:1.1rem 1.4rem;border-bottom:2px solid var(--ink);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.24em;
+  }
+  .drawer-head button{
+    background:none;border:none;cursor:pointer;font-size:1rem;color:var(--ink);
+  }
+  .drawer-head button:hover{color:var(--stamp)}
+  .drawer-body{flex:1;overflow-y:auto;padding:1.2rem 1.4rem}
+  .cart-empty{
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;color:#6b6552;
+    text-align:center;padding:2.5rem 0;
+  }
+  .cart-line{
+    display:flex;justify-content:space-between;align-items:center;gap:.8rem;
+    padding:.9rem 0;border-bottom:1px solid var(--line);
+  }
+  .cl-file{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;color:#6b6552}
+  .cl-name{font-family:'Fraunces',serif;font-size:1.05rem}
+  .cl-controls{display:flex;align-items:center;gap:.6rem;font-family:var(--mono);font-size:.8rem}
+  .cl-controls .qty{
+    width:1.5rem;height:1.5rem;border:1px solid var(--ink);background:none;cursor:pointer;
+    font-family:var(--mono);border-radius:2px;line-height:1;
+  }
+  .cl-controls .qty:hover{background:var(--ink);color:var(--bone)}
+  .cl-price{min-width:3.2rem;text-align:right;color:var(--stamp);font-weight:500}
+  .cart-total-row{
+    display:flex;justify-content:space-between;padding:1.1rem 0 .4rem;
+    font-family:var(--mono);font-size:.78rem;letter-spacing:.2em;
+  }
+  .cart-total-row b{color:var(--stamp);font-size:1rem}
+  .co-label{
+    display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.2em;
+    color:#6b6552;margin:1rem 0 .35rem;
+  }
+  #checkoutForm input, #checkoutForm textarea{
+    width:100%;padding:.75rem .9rem;border:1px solid var(--khaki);background:#fff8;
+    font-family:var(--mono);font-size:.78rem;border-radius:2px;outline:none;resize:vertical;color:var(--ink);
+  }
+  #checkoutForm input:focus, #checkoutForm textarea:focus{border-color:var(--stamp)}
+  .co-err{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;color:var(--stamp);margin-top:.6rem;min-height:1em}
+  .co-btn{
+    width:100%;margin-top:.5rem;padding:.95rem;cursor:pointer;
+    background:var(--ink);color:var(--bone);border:none;border-radius:2px;
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;transition:background .25s;
+  }
+  .co-btn:hover{background:var(--stamp)}
+  .co-btn:disabled{opacity:.6;cursor:wait}
+  .co-note{font-size:.72rem;color:#6b6552;margin-top:.8rem;line-height:1.5}
+  .done-stamp{
+    width:max-content;margin:1.2rem auto .8rem;
+    font-family:var(--mono);font-size:.8rem;letter-spacing:.3em;color:var(--stamp);
+    border:2px solid var(--stamp);border-radius:4px;padding:.6rem 1.2rem;transform:rotate(-6deg);
+  }
+  .done-text{font-size:.85rem;text-align:center;color:#4a463a;margin-bottom:1rem}
+  .done-text b{color:var(--stamp);font-family:var(--mono);font-size:.8rem}
+
   /* toast */
   .toast{
     position:fixed;bottom:1.6rem;left:50%;transform:translate(-50%,150%);z-index:200;
@@ -457,6 +528,34 @@
   </div>
 </footer>
 
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-label="Cart">
+  <div class="drawer-head">
+    <span>YOUR FILES</span>
+    <button id="drawerClose" aria-label="Close cart">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div id="cartList"></div>
+    <div id="cartFoot" style="display:none">
+      <div class="cart-total-row"><span>TOTAL</span><b id="cartTotal">$0</b></div>
+      <div id="checkoutForm">
+        <label class="co-label" for="coEmail">EMAIL FOR YOUR ORDER</label>
+        <input type="email" id="coEmail" placeholder="your@email.com">
+        <label class="co-label" for="coNotes">CUSTOMIZATION NOTES</label>
+        <textarea id="coNotes" rows="3" placeholder="Text to embroider, artwork description, sizing..."></textarea>
+        <p class="co-err" id="coErr"></p>
+        <button class="co-btn" id="placeOrder">PLACE ORDER REQUEST</button>
+        <p class="co-note">No payment taken yet — we confirm your custom details by email first, then send an invoice.</p>
+      </div>
+      <div id="checkoutDone" style="display:none">
+        <div class="done-stamp">FILED</div>
+        <p class="done-text">Order <b id="doneId"></b> received — total <b id="doneTotal"></b>.<br>We'll email you within 24h to confirm your customization before anything is stitched.</p>
+        <button class="co-btn" id="doneClose">CLOSE</button>
+      </div>
+    </div>
+  </div>
+</aside>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -545,13 +644,13 @@ products.forEach((p,i)=>{
     <div class="tag">
       <p class="desc">${p.desc}</p>
       <div class="spec">${p.spec}</div>
-      <button class="add" data-name="${p.name}" data-price="${p.price}">Add to cart — $${p.price}</button>
+      <button class="add" data-file="${p.file}" data-name="${p.name}" data-price="${p.price}">Add to cart — $${p.price}</button>
     </div>`;
   grid.appendChild(card);
 });
 
 /* ---------- cart ---------- */
-let cart = 0;
+let cart = []; // [{file,name,price,qty}]
 const cartBtn = document.getElementById('cartBtn');
 const cartCount = document.getElementById('cartCount');
 const toast = document.getElementById('toast');
@@ -562,27 +661,127 @@ function showToast(msg){
   clearTimeout(toastTimer);
   toastTimer = setTimeout(()=>toast.classList.remove('show'), 2600);
 }
+function cartQty(){ return cart.reduce((n,i)=>n+i.qty,0); }
+function cartTotal(){ return cart.reduce((n,i)=>n+i.price*i.qty,0); }
+function syncCount(){
+  cartCount.textContent = cartQty();
+  cartBtn.classList.add('bump');
+  setTimeout(()=>cartBtn.classList.remove('bump'), 300);
+}
 grid.addEventListener('click', e=>{
   const btn = e.target.closest('.add');
   if(!btn) return;
-  cart++;
-  cartCount.textContent = cart;
-  cartBtn.classList.add('bump');
-  setTimeout(()=>cartBtn.classList.remove('bump'), 300);
+  const found = cart.find(i=>i.file===btn.dataset.file);
+  if(found) found.qty++;
+  else cart.push({file:btn.dataset.file, name:btn.dataset.name, price:+btn.dataset.price, qty:1});
+  syncCount();
+  renderCart();
   showToast(`<b>FILE ADDED</b> — ${btn.dataset.name} · $${btn.dataset.price}`);
 });
-cartBtn.addEventListener('click', ()=>{
-  showToast(cart ? `<b>${cart} ITEM${cart>1?'S':''}</b> IN CART — CHECKOUT COMING SOON` : `CART EMPTY — OPEN A FILE BELOW`);
+
+/* ---------- cart drawer ---------- */
+const drawer = document.getElementById('drawer');
+const overlay = document.getElementById('overlay');
+function openCart(){ drawer.classList.add('open'); overlay.classList.add('show'); renderCart(); }
+function closeCart(){ drawer.classList.remove('open'); overlay.classList.remove('show'); }
+cartBtn.addEventListener('click', openCart);
+overlay.addEventListener('click', closeCart);
+document.getElementById('drawerClose').addEventListener('click', closeCart);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeCart(); });
+
+function renderCart(){
+  const list = document.getElementById('cartList');
+  const foot = document.getElementById('cartFoot');
+  if(cart.length===0){
+    list.innerHTML = `<p class="cart-empty">CART EMPTY — OPEN A FILE IN THE ARCHIVE</p>`;
+    foot.style.display='none';
+    return;
+  }
+  foot.style.display='block';
+  list.innerHTML = cart.map((i,idx)=>`
+    <div class="cart-line">
+      <div>
+        <span class="cl-file">FILE Nº ${i.file}</span>
+        <span class="cl-name">${i.name}</span>
+      </div>
+      <div class="cl-controls">
+        <button class="qty" data-i="${idx}" data-d="-1" aria-label="Decrease">−</button>
+        <span>${i.qty}</span>
+        <button class="qty" data-i="${idx}" data-d="1" aria-label="Increase">+</button>
+        <span class="cl-price">$${i.price*i.qty}</span>
+      </div>
+    </div>`).join('');
+  document.getElementById('cartTotal').textContent = '$'+cartTotal();
+}
+document.getElementById('cartList').addEventListener('click', e=>{
+  const b = e.target.closest('.qty');
+  if(!b) return;
+  const i = +b.dataset.i;
+  cart[i].qty += +b.dataset.d;
+  if(cart[i].qty<=0) cart.splice(i,1);
+  syncCount();
+  renderCart();
+});
+
+/* ---------- checkout ---------- */
+const coForm = document.getElementById('checkoutForm');
+const coDone = document.getElementById('checkoutDone');
+document.getElementById('placeOrder').addEventListener('click', async ()=>{
+  const email = document.getElementById('coEmail').value.trim();
+  const notes = document.getElementById('coNotes').value.trim();
+  const err = document.getElementById('coErr');
+  err.textContent = '';
+  if(!/.+@.+\..+/.test(email)){ err.textContent='ENTER A VALID EMAIL.'; return; }
+  const btn = document.getElementById('placeOrder');
+  btn.disabled = true; btn.textContent = 'FILING...';
+  try{
+    const r = await fetch('/api/orders',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({items:cart.map(i=>({file:i.file,qty:i.qty})), email, notes})
+    });
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error||'Order failed');
+    document.getElementById('doneId').textContent = data.orderId;
+    document.getElementById('doneTotal').textContent = '$'+data.total;
+    coForm.style.display='none';
+    coDone.style.display='block';
+    cart = [];
+    syncCount();
+    renderCart();
+    document.getElementById('cartFoot').style.display='block';
+  }catch(ex){
+    err.textContent = (ex.message||'ORDER FAILED — TRY AGAIN.').toUpperCase();
+  }finally{
+    btn.disabled=false; btn.textContent='PLACE ORDER REQUEST';
+  }
+});
+document.getElementById('doneClose').addEventListener('click', ()=>{
+  coDone.style.display='none';
+  coForm.style.display='block';
+  closeCart();
 });
 
 /* ---------- newsletter ---------- */
-document.getElementById('newsBtn').addEventListener('click', ()=>{
+document.getElementById('newsBtn').addEventListener('click', async ()=>{
   const el = document.getElementById('newsEmail');
-  if(/.+@.+\..+/.test(el.value)){
+  if(!/.+@.+\..+/.test(el.value)){
+    showToast(`ENTER A VALID EMAIL TO JOIN`);
+    return;
+  }
+  try{
+    const r = await fetch('/api/newsletter',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:el.value})
+    });
+    if(!r.ok) throw new Error();
     showToast(`<b>ON THE LIST</b> — WE'LL BE IN TOUCH`);
     el.value = '';
-  } else {
-    showToast(`ENTER A VALID EMAIL TO JOIN`);
+  }catch(_){
+    /* static hosting (e.g. GitHub Pages) has no API — still confirm locally */
+    showToast(`<b>ON THE LIST</b> — WE'LL BE IN TOUCH`);
+    el.value = '';
   }
 });
 
