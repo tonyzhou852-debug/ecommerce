@@ -8,16 +8,20 @@ const PORT = process.env.PORT || 3000; // Render sets PORT automatically
 app.use(express.json());
 
 // ---------- serve the storefront ----------
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(__dirname));
 
 // ---------- data ----------
-const products = require("./products.json");
+const catalog = require("./products.json");
+const products = catalog.items;
+const SIZES = catalog.sizes;
+const UP = catalog.sizeUpcharge || {};
+const priceFor = (p, size) => +(p.basePrice + (UP[size] || 0)).toFixed(2);
 
 // ---------- API routes ----------
 
-// GET /api/products -> full catalog
+// GET /api/products -> full catalog (with sizes & upcharges)
 app.get("/api/products", (req, res) => {
-  res.json(products);
+  res.json(catalog);
 });
 
 // GET /api/products/:file -> single product by file number, e.g. /api/products/001
@@ -57,16 +61,19 @@ app.post("/api/orders", (req, res) => {
     return res.status(400).json({ error: "A valid email is required." });
   }
 
-  // validate items and compute total server-side
+  // validate items and compute total server-side (size-aware)
   let total = 0;
   const lines = [];
   for (const it of items) {
     const p = products.find((x) => x.file === it.file);
     if (!p) return res.status(400).json({ error: `Unknown product file: ${it.file}` });
+    if (!SIZES.includes(it.size)) return res.status(400).json({ error: `Invalid size for ${p.name}: ${it.size}` });
     const qty = Math.max(1, parseInt(it.qty || 1, 10));
-    total += p.price * qty;
-    lines.push({ file: p.file, name: p.name, price: p.price, qty });
+    const price = priceFor(p, it.size);
+    total += price * qty;
+    lines.push({ file: p.file, name: p.name, size: it.size, price, qty });
   }
+  total = +total.toFixed(2);
 
   const order = {
     id: "ORD-" + Date.now().toString(36).toUpperCase(),
@@ -94,7 +101,7 @@ app.get("/healthz", (req, res) => res.send("ok"));
 
 // fallback: send index.html for any other route
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.listen(PORT, () => {
